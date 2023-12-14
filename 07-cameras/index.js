@@ -29,16 +29,16 @@ controls.enableDamping = true;
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.setSize(sizes.width, sizes.height);
 
-const cursor = { x: 0, y: 0 };
-canvas.addEventListener('mousemove', (event) => {
-  cursor.x = event.clientX / sizes.width - 0.5;
-  cursor.y = -(event.clientY / sizes.height - 0.5);
-});
+// const cursor = { x: 0, y: 0 };
+// canvas.addEventListener('mousemove', (event) => {
+//   cursor.x = event.clientX / sizes.width - 0.5;
+//   cursor.y = -(event.clientY / sizes.height - 0.5);
+// });
 
 const clock = new THREE.Clock();
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
+  // const elapsedTime = clock.getElapsedTime();
   controls.update();
 
   // cube.rotation.y = elapsedTime;

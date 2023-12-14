@@ -11,16 +11,32 @@ const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
 const sizes = {
-  width: 800,
-  height: 800,
+  width: window.innerWidth,
+  height: window.innerHeight,
 };
 
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
-// camera.position.x = 2;
-// camera.position.y = 2;
-camera.position.z = 4;
-camera.lookAt(cube.position);
+window.addEventListener('resize', () => {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
 
+  renderer.setSize(sizes.width, sizes.height);
+
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+
+window.addEventListener('dblclick', () => {
+  if (!document.fullscreenElement) {
+    canvas.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
+camera.position.z = 4;
 scene.add(camera);
 
 const controls = new OrbitControls(camera, canvas);
@@ -28,26 +44,11 @@ controls.enableDamping = true;
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.setSize(sizes.width, sizes.height);
-
-const cursor = { x: 0, y: 0 };
-canvas.addEventListener('mousemove', (event) => {
-  cursor.x = event.clientX / sizes.width - 0.5;
-  cursor.y = -(event.clientY / sizes.height - 0.5);
-});
-
-const clock = new THREE.Clock();
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
   controls.update();
 
-  // cube.rotation.y = elapsedTime;
-
-  // camera.position.x = cursor.x * 4;
-  // camera.position.y = cursor.y * 4;
-  // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 5;
-  // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 5;
-  // camera.lookAt(cube.position);
   renderer.render(scene, camera);
 
   window.requestAnimationFrame(tick);
