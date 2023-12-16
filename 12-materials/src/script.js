@@ -70,16 +70,24 @@ matcapTexture.colorSpace = THREE.SRGBColorSpace;
 // material.shininess = 10;
 // material.specular = new THREE.Color(0x1188ff);
 
-// THREE.MeshStandardMaterial
-const material = new THREE.MeshStandardMaterial();
-material.roughness = 1;
-material.metalness = 1;
-material.map = doorColorTexture;
-// material.aoMap = doorAmbientOcclusionTexture;
-// material.displacementMap = doorHeightTexture;
-material.roughnessMap = doorRoughnessTexture;
-material.metalnessMap = doorMetalnessTexture;
-material.normalMap = doorNormalTexture;
+// // THREE.MeshStandardMaterial
+// const material = new THREE.MeshStandardMaterial();
+// material.roughness = 1;
+// material.metalness = 1;
+// material.map = doorColorTexture;
+// // material.aoMap = doorAmbientOcclusionTexture;
+// // material.displacementMap = doorHeightTexture;
+// material.roughnessMap = doorRoughnessTexture;
+// material.metalnessMap = doorMetalnessTexture;
+// material.normalMap = doorNormalTexture;
+
+// THREE.MeshPhysicalMaterial
+const material = new THREE.MeshPhysicalMaterial();
+material.roughness = 0;
+material.metalness = 0;
+material.transmission = 1;
+material.ior = 1.5;
+material.thickness = 0.5;
 
 gui.add(material, 'roughness').min(0).max(1).step(0.0001);
 gui.add(material, 'metalness').min(0).max(1).step(0.0001);
