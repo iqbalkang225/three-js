@@ -25,7 +25,6 @@ body {
   font-size: 7vmin;
   padding-left: 10%;
   padding-right: 10%;
-  border: 1px solid red;
 }
 
 section:nth-child(odd) {
