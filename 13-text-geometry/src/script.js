@@ -8,6 +8,9 @@ import GUI from 'lil-gui';
  * debug
  */
 const gui = new GUI();
+const galaxyTweaks = gui.addFolder('Galaxy Controls');
+const shapeTweaks = gui.addFolder('Shapes Controls');
+
 const debugObject = {};
 debugObject.spheres = 200;
 debugObject.donuts = 200;
@@ -46,6 +49,95 @@ matcapTextureDonut.colorSpace = THREE.SRGBColorSpace;
 matcapTextureDonutSprikles.colorSpace = THREE.SRGBColorSpace;
 
 const texturesArray = [matcapTextureYellow, matcapTextureGreen, matcapTextureRed, matcapTextureBlue];
+
+/**
+ * Galaxy
+ */
+const parameters = {
+  count: 100000,
+  size: 0.01,
+  radius: 5,
+  branches: 3,
+  spin: 1,
+  randomness: 0.02,
+  randomnessPower: 3,
+  insideColor: '#ff6030',
+  outsideColor: '#1b3984',
+};
+
+let particlesGeometry = null;
+let particlesMaterial = null;
+let particles = null;
+
+const generateGalaxy = () => {
+  const { count, size, radius, branches, spin, randomness, randomnessPower } = parameters;
+
+  if (particlesGeometry !== null || particlesMaterial !== null) {
+    particlesGeometry.dispose();
+    particlesMaterial.dispose();
+    scene.remove(particles);
+  }
+
+  particlesGeometry = new THREE.BufferGeometry();
+
+  particlesMaterial = new THREE.PointsMaterial({
+    size: size,
+    sizeAttenuation: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexColors: true,
+  });
+
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+
+  for (let i = 0; i < count; i++) {
+    const i3 = i * 3;
+
+    // Position
+    const galaxyRadius = Math.random() * radius;
+    const spinAngle = spin * galaxyRadius;
+    const branchAngle = ((i % branches) / branches) * Math.PI * 2;
+
+    const randomX = Math.pow(Math.random(), randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+    const randomY = Math.pow(Math.random(), randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+    const randomZ = Math.pow(Math.random(), randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+
+    positions[i3] = Math.sin(branchAngle + spinAngle) * galaxyRadius + randomX;
+    positions[i3 + 1] = randomY;
+    positions[i3 + 2] = Math.cos(branchAngle + spinAngle) * galaxyRadius + randomZ;
+
+    // Colors
+
+    const insideColor = new THREE.Color(parameters.insideColor);
+    const outsideColor = new THREE.Color(parameters.outsideColor);
+
+    const mixedColor = insideColor.clone();
+    mixedColor.lerp(outsideColor, galaxyRadius / radius);
+
+    colors[i3] = mixedColor.r;
+    colors[i3 + 1] = mixedColor.g;
+    colors[i3 + 2] = mixedColor.b;
+  }
+
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particles);
+};
+
+generateGalaxy();
+
+galaxyTweaks.add(parameters, 'count').min(100).max(1000000).step(100).onFinishChange(generateGalaxy);
+galaxyTweaks.add(parameters, 'size').min(0.001).max(0.1).step(0.001).onFinishChange(generateGalaxy);
+galaxyTweaks.add(parameters, 'radius').min(1).max(10).step(1).onFinishChange(generateGalaxy);
+galaxyTweaks.add(parameters, 'branches').min(1).max(10).step(1).onFinishChange(generateGalaxy);
+galaxyTweaks.add(parameters, 'spin').min(1).max(10).step(1).onFinishChange(generateGalaxy);
+galaxyTweaks.add(parameters, 'randomness').min(0).max(2).step(0.001).onFinishChange(generateGalaxy);
+galaxyTweaks.add(parameters, 'randomnessPower').min(1).max(10).step(0.1).onFinishChange(generateGalaxy);
+galaxyTweaks.addColor(parameters, 'insideColor').onFinishChange(generateGalaxy);
+galaxyTweaks.addColor(parameters, 'outsideColor').onFinishChange(generateGalaxy);
 
 /**
  * Font geometry
@@ -118,7 +210,7 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
   caneMeshArr = repeatGeometry(canesGeometry, debugObject.canes);
 
   const debugGeometry = (property, arr, shape) => {
-    gui
+    shapeTweaks
       .add(debugObject, property)
       .min(0)
       .max(500)
@@ -135,11 +227,6 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
   debugGeometry('spheres', sphereMeshArr, sphereGeometry);
   debugGeometry('donuts', donutMeshArr, donutGeometry);
   debugGeometry('canes', caneMeshArr, canesGeometry);
-
-  // textGeometry.computeBoundingBox();
-  // const { x, y, z } = textGeometry.boundingBox.max;
-  // textGeometry.translate(-x * 0.5, -y * 0.5, -z * 0.5);
-  // // text.position.x = -text.position.x / 2;
 
   scene.add(text);
 });
