@@ -8,6 +8,8 @@ import GUI from 'lil-gui';
  * debug
  */
 const gui = new GUI();
+if (window.innerWidth < 920) gui._closeFolders = true;
+
 const galaxyTweaks = gui.addFolder('Galaxy Controls');
 const shapeTweaks = gui.addFolder('Shapes Controls');
 
